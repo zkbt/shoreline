@@ -109,33 +109,41 @@ def probability_of_atmosphere(
 
 
 def make_safe_for_latex(s):
-    s = clean(s).replace('0', 'o').replace('CO2', 'COO')
-    for k, v in dict(one=1, two=2, three=3, four=4, five=5, six=6, seven=7, eight=8, nine=9, zero=0).items():
+    s = clean(s).replace("0", "o").replace("CO2", "COO")
+    for k, v in dict(
+        one=1, two=2, three=3, four=4, five=5, six=6, seven=7, eight=8, nine=9, zero=0
+    ).items():
         s = s.replace(str(v), k)
     return s
-    
-def latexify(posterior, label=''):
 
 
+def latexify(posterior, label=""):
 
     func_dict = {
         "median": np.median,
-        "lower": lambda x: np.median(x) - np.percentile(x, 50-68.3/2), 
-        "upper": lambda x: np.percentile(x, 50+68.3/2) - np.median(x) }
+        "lower": lambda x: np.median(x) - np.percentile(x, 50 - 68.3 / 2),
+        "upper": lambda x: np.percentile(x, 50 + 68.3 / 2) - np.median(x),
+    }
 
-    summary = az.summary(posterior,  stat_funcs=func_dict) 
+    summary = az.summary(posterior, stat_funcs=func_dict)
     lines = []
-    for k in summary['median'].keys():
-        lower, upper = summary["lower"][k], summary["upper"][k] 
-        symmetric = np.abs(lower - upper)/(lower + upper) < 0.1
+    for k in summary["median"].keys():
+        lower, upper = summary["lower"][k], summary["upper"][k]
+        symmetric = np.abs(lower - upper) / (lower + upper) < 0.1
         if symmetric:
-            sigma = (lower + upper)/2
+            sigma = (lower + upper) / 2
             s = f'{summary["median"][k]:.3g} \pm {sigma:.2g}'
         else:
             s = f'{summary["median"][k]:.3g}_{{-{lower:.2g}}}^{{+{upper:.2g}}}'
-        
-        lines.append(rf'\newcommand{{\{make_safe_for_latex(label)}{make_safe_for_latex(k)}}}{{{s}}}' + '\n')
+
+        lines.append(
+            rf"\newcommand{{\{make_safe_for_latex(label)}{make_safe_for_latex(k)}}}{{{s}}}"
+            + "\n"
+        )
         s = f'{summary["median"][k]:.3g}'
-        lines.append(rf'\newcommand{{\{make_safe_for_latex(label)}{make_safe_for_latex(k)+'justvalue'}}}{{{s}}}' + '\n')
-    lines.append('\n')
+        lines.append(
+            rf"\newcommand{{\{make_safe_for_latex(label)}{make_safe_for_latex(k)+'justvalue'}}}{{{s}}}"
+            + "\n"
+        )
+    lines.append("\n")
     return lines
