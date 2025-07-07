@@ -1,49 +1,40 @@
 \documentclass[modern,linenumbers,trackchanges]{aastex7}
-%\usepackage{sansmath}
-%\sansmath
-
 
 \usepackage{amsmath} 
 \usepackage{color}
 \definecolor{black}{rgb}{0,0,0}
 \definecolor{blue}{rgb}{0.2,0.2,0.81}
 \definecolor{orange}{rgb}{0.92,0.33,0.16}
-
 \definecolor{gray}{rgb}{.5,0.5,0.5}
 \newcommand{\todo}[1]{{\color{orange}  #1 \normalfont}}
 \newcommand{\zkbt}[1]{{\color{black} #1}\normalfont}
 		
 \begin{document}
-%\title{The Slope of the Cosmic Shoreline is Terrifically Uncertain}
-%\title{The Cosmic Shoreline is 3D}
-%\title{The Cosmic Shoreline in 3D}
-%\title{The Cosmic Shoreline is 3D}
+
 \title{The 3D Cosmic Shoreline for Nurturing Planetary Atmospheres}
-%sustaining? preserving? 
 
 \shorttitle{Probabilistic Cosmic Shorelines}
 
 
-\author[orcid=0000-0002-3321-4924,sname='Berta-Thompson']{Zach K. Berta-Thompson}
+\author[orcid=0000-0002-3321-4924]{Zach K. Berta-Thompson}
 \affiliation{University of Colorado Boulder, Department of Astrophysical and Planetary Sciences}
 \email[show]{zach.bertathompson@colorado.edu}  
 
 
-\author[orcid=0000-0001-6484-7559,sname='Wachiraphan']{Patcharapol Wachiraphan}
+\author[orcid=0000-0001-6484-7559]{Patcharapol Wachiraphan}
 \affiliation{University of Colorado Boulder, Department of Astrophysical and Planetary Sciences}
 \email{patcharapol.wachiraphan@colorado.edu}  
 
 
 
-\author[orcid=0000-0001-8504-5862,sname='Murray']{Catriona Murray}
+\author[orcid=0000-0001-8504-5862]{Catriona Murray}
 \affiliation{University of Colorado Boulder, Department of Astrophysical and Planetary Sciences}
 \email{catriona.murray@colorado.edu}  
 
 
-% include variables that can be updated easily!
-\input{posteriors-mass-radius}
-\input{posteriors-shorelines}
-\input{posteriors-applications}
+\include{variables/posteriors-mass-radius}
+\include{variables/posteriors-shorelines}
+\include{variables/posteriors-applications}
 
 
 \begin{abstract}
@@ -82,7 +73,7 @@ For stellar luminosity $L_\star$, if not present in the raw table, \texttt{exoat
 To be able to include objects without measured masses in our analysis, we derive an empirical radius-to-mass relation from rocky objects with measured masses and radii. We limit to radii smaller than $1.8 {\rm R_\earth}$, as these are likely to be mostly terrestrial \citep{fultonCaliforniaKeplerSurveyVII2018, zengNewPerspectivesExoplanet2021, rogersMostSuperEarthsHave2025}. We fit a linear model $y = m\cdot x + b$ where we define $x_{\sf i} = \ln (R_{\sf i}/R_\earth)$ and $y_{\sf i} = \ln (M_{\sf i}/M_\earth)$, corresponding to a power-law relationship $M = CR^m$ where $C = e^b$. In addition to the measurement uncertainties on the data $\sigma_{x,i} = \sigma_{\ln R_{\sf i}} = \sigma_{R_{\sf i}}/{R_{\sf i}}$ and $ \sigma_{y_{\sf i}} =  \sigma_{\ln M_{\sf i}} =  \sigma_{M,i}/M_{\sf i}$, we include an intrinsic scatter on the relation $\sigma_{y}$. We allow this intrinsic scatter to vary with radius as $\ln \sigma_{y} = m_\sigma \cdot x + b_\sigma$ to capture the diversity of densities that grows toward very small objects due to effects of composition, structure, and porosity. We infer the parameters of this model ($m$, $b$, $m_\sigma$, $b_\sigma$) following a blog post by \citet[][see also \citealt{hoggDataAnalysisRecipes2010a}]{foreman-mackeyFittingPlaneData2017} with a Gaussian likelihood that analytically marginalizes over the uncertainties in both $x$ and $y$ and an uninformative prior on the slopes $P(m) \propto (1+m^2)^{-3/2}$ as in \citet{vanderplasFrequentismBayesianismPythondriven2014a}. We sample the posterior using \texttt{numpyro} \citep{phanComposableEffectsFlexible2019} with the No U-Turns Sampler \citep[NUTS;][]{hoffmanNoUTurnSamplerAdaptively2011}, using 4 chains each with 5,000 warm-up steps and 50,000 samples, reaching an \citet{gelmanInferenceIterativeSimulation1992} statistic of $\hat{R}=1.0$ and a bulk effective sample size $>10,000$ \citep[][see also \citealt{hoggDataAnalysisRecipes2018}]{vehtariRankNormalizationFoldingLocalization2021} for all parameters. Figure \ref{f:mass-radius} shows the result. The inferred slope of $m = \mrm $ is slightly steeper than a constant density ($m=3$) as expected due to self-gravity more strongly compressing larger planets, and the intercept $b = \mrb$ is close to Earth-like ($b=0$). The slope $m$ is similar to but slightly lower than other mass-radius relations for rocky planets:  3.58 \citep[$1/0.279 =$;][]{chenPROBABILISTICFORECASTINGMASSES2017}, 3.45 \citep{otegiRevisitedMassradiusRelations2020}, 3.70 \citep[$=1/0.27$;][]{mullerMassradiusRelationExoplanets2024}. For the intrinsic scatter, the slope $m_\sigma = \mrmsigma $ and intercept $b_\sigma = \mrbsigma$ imply a \mrscatteratearthjustvalue\% scatter at 1 ${\rm R_\earth}$ that grows to \mrscatteratsmalljustvalue\% scatter at $10^{-3}$ ${\rm R_\earth}$. We incorporate the sample means and covariance matrix (which describe the nearly multivariate normal posterior well) into \texttt{exoatlas} to calculate mass estimates with uncertainties that include the uncertainties on the parameters themselves, the intrinsic scatter, and the input radius uncertainties. This relation is valid only for planets without gaseous envelopes contributing significantly to their overall size.
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{mass-radius-relation-for-rocky-planets}
+\includegraphics[width=\textwidth]{figures/mass-radius-relation-for-rocky-planets}
 \caption{To determine escape velocities for objects without measured masses, we derive an empirical mass-radius relationship from exoplanets (errorbars) and Solar System objects (squares). We use this relation, valid for rocky planets up to $1.8\rm{R}_\earth$, to estimate planet masses and uncertainties that incorporate the intrinsic scatter on the relation, the uncertainties on the model parameters, and uncertainties on the planet radii (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/fit-mass-radius-relation.ipynb}{\texttt{</>}}).
 }
 \label{f:mass-radius}
@@ -90,7 +81,6 @@ To be able to include objects without measured masses in our analysis, we derive
 
 \subsection{What planets do we label as having atmospheres?}
 
-% We label planets (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/curate-and-label-planets.ipynb}{\texttt{</>}}) as having an atmosphere ($A_{\sf i} = 1$) or not  ($A_{\sf i} = 0$), focusing on two subsamples of the exoplanet and Solar System population. 
 To include in our probabilistic fit we label planets (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/curate-and-label-planets.ipynb}{\texttt{</>}}) as having an atmosphere ($A_{\sf i} = 1$) or not ($A_{\sf i} = 0$). Planets with inconclusive or unmeasured atmospheres remain unlabeled ($A_{\sf i} = ?$) and are excluded from the fit. We focus on two subsamples of the exoplanet and Solar System population: a general \textbf{any atmosphere} sample and more specific \textbf{warm CO$_{2}$ atmosphere} subsample. In both cases, to simplify the analysis, we exclude planets with quoted ages younger than 500 Myr, to minimize having to imagine the future states of still rapidly evolving planets \citep{lopezUnderstandingMassRadiusRelation2014a, chenEvolutionaryAnalysisGaseous2016b,  thaoFeatherweightGiantUnraveling2024b}. 
 
 For our {\bf any atmosphere} sample, we are generous in what we call ``having an atmosphere" ($A_{\sf i} = 1$), as in ZC17. For Solar System bodies, we include all major planets (everything except Mercury) and moons (Titan) with atmospheric surface pressures $>10^{-6}$ bar. We include outer Solar System moons or dwarf planets that have managed to retain significant volatile reservoirs \citep{schallerVolatileLossRetention2007}, either as seasonally sublimating atmospheres and/or substantial global N$_2$ and CH$_4$ volatile deposits on their surfaces: Triton, Pluto, Makemake, Eris \citep{youngStructureCompositionPlutos2018, sicardyConstraintsEvolutionTriton2024, grundyModerateRatiosMethane2024}. We label all other Solar System objects as $A_{\sf i} = 0$.
@@ -104,7 +94,7 @@ We apply $A_{\sf i} = 0$ to these rocky planets with eclipse observations of hot
 Gl 486b, GJ 1132b, and LTT 1445Ab have deep spectroscopic eclipses \citep{weinermansfieldNoThickAtmosphere2024, xueJWSTThermalEmission2024a, wachiraphanThermalEmissionSpectrum2025a}. We caution that our labeling these exoplanets as $A_{\sf i} = 0$ does {\em not} mean planets necessarily have no atmosphere at all; for tidally locked planets, a JWST measurement of hot dayside emission might only constrain the atmospheric pressure on an individual planet to less than about 10 bar \citep{kollScalingAtmosphericHeat2022}, really saying simply that we have not detected a very thick Venus-like atmosphere.
 
 We leave the following notable planets unlabeled ($A_{\sf i} = ?$), meaning they are ignored from the probabilistic fit, even if there have been suggestions they lack atmospheres. 
-Kepler-10b and Kepler-78b have symmetric phase curves from Kepler, but with only the optical bandpass their deep eclipses are degenerate between reflected and thermal light, thus complicating atmospheric inferences \citep{sanchis-ojedaTransitsOccultationsEarthsized2013, estevesChangingPhasesAlien2015a, huSemianalyticalModelVisiblewavelength2015, singhProbingKeplersHottest2022}. K2-141 shows a K2 + Spitzer phase curve suggesting a high albedo or hot inversion layer, but whether an atmosphere is absolutely required remains uncertain \citep{singhProbingKeplersHottest2022, ziebaK2SpitzerPhase2022}. LHS 1478b and TOI-431b appear to have a shallow thermal eclipses, but more data are needed to rule out systematics \citep{augustHotRocksSurvey2025, monaghanLow45Mm2025a}. TRAPPIST-1b and TRAPPIST-1c show deep MIRI eclipses implying hot day sides \citep{greeneThermalEmissionEarthsized2023, ihConstrainingThicknessTRAPPIST12023, ziebaNoThickCarbon2023, ducrotCombinedAnalysis1282025} and no obvious planetary transmission spectrum features \citep{limAtmosphericReconnaissanceTRAPPIST12023, radicaPromisePerilStellar2025, rathckeStellarContaminationCorrection2025}, but systemic stellar uncertainties leave the system still slightly ambiguous \citep{howardCharacterizingNearinfraredSpectra2023, rackhamRobustCorrectionsStellar2024,  fauchezStellarModelsAlso2025}. %LTT 1445Ab has a deep MIRI/LRS eclipse implying a hot dayside \citep{wachiraphanThermalEmissionSpectrum2025a}, but with the promise that it and LTT 1445Ac \citep{passHSTWFC3Light2023} will soon be observed at 15 $\mu$m in the Rocky Worlds program\footnote{\href{https://rockyworlds.stsci.edu/rw-website-targets.html}{rockyworlds.stsci.edu/rw-website-targets.html}} we leave it ambiguous for now. 
+Kepler-10b and Kepler-78b have symmetric phase curves from Kepler, but with only the optical bandpass their deep eclipses are degenerate between reflected and thermal light, thus complicating atmospheric inferences \citep{sanchis-ojedaTransitsOccultationsEarthsized2013, estevesChangingPhasesAlien2015a, huSemianalyticalModelVisiblewavelength2015, singhProbingKeplersHottest2022}. K2-141 shows a K2 + Spitzer phase curve suggesting a high albedo or hot inversion layer, but whether an atmosphere is absolutely required remains uncertain \citep{singhProbingKeplersHottest2022, ziebaK2SpitzerPhase2022}. LHS 1478b and TOI-431b appear to have a shallow thermal eclipses, but more data are needed to rule out systematics \citep{augustHotRocksSurvey2025, monaghanLow45Mm2025a}. TRAPPIST-1b and TRAPPIST-1c show deep MIRI eclipses implying hot day sides \citep{greeneThermalEmissionEarthsized2023, ihConstrainingThicknessTRAPPIST12023, ziebaNoThickCarbon2023, ducrotCombinedAnalysis1282025} and no obvious planetary transmission spectrum features \citep{limAtmosphericReconnaissanceTRAPPIST12023, radicaPromisePerilStellar2025, rathckeStellarContaminationCorrection2025}, but systemic stellar uncertainties leave the system still slightly ambiguous \citep{howardCharacterizingNearinfraredSpectra2023, rackhamRobustCorrectionsStellar2024,  fauchezStellarModelsAlso2025}.
 L 98-59 b's transmission spectrum may show tentative evidence of SO$_2$ \citep[possibly from tidally-heated volcanism;][] {seligmanPotentialMeltingExtrasolar2024} but is also consistent with featureless \citep{bello-arufeEvidenceVolcanicAtmosphere2025b}, so we leave it unlabeled. Otherwise, transmission spectra have not yet conclusively identified nor ruled out any rocky planet atmospheres due to degeneracies with clouds \citep{lustig-yaegerMirageCosmicShoreline2019} and/or stellar contamination \citep{mayDoubleTroubleTwo2023, moranHighTideRiptide2023}; we leave transmission spectroscopy-based non-detections as $A_{\sf i} = ?$.
 
 Four targets are already planned for Rocky Worlds. GJ 3929b \citep{beardGJ3929Highprecision2022, kemmerDiscoveryMassMeasurement2022} and LTT 1445Ac \citep[][]{wintersSecondPlanetTransiting2022, passHSTWFC3Light2023, laviePlanetarySystemLTT2023} have no atmosphere measurements and are both $A_{\sf i}=?$. LHS 1140b \citep{dittmannTemperateRockySuperEarth2017c, mentSecondTerrestrialPlanet2019c} may show hints of an atmosphere in transmission \citep{cadieuxTransmissionSpectroscopyHabitable2024}, but we keep it as $A_{\sf i}=?$ for now. LTT 1445Ab is labeled here as $A_{\sf i}=0$ based the lack of a thick ($>10$ bar) atmosphere (see above), but Rocky Worlds' 15$\mu$m photometry should be sensitive to much more tenuous CO$_2$ atmospheres and could in the future flip it to $A_{\sf i}=1$. 
@@ -112,8 +102,6 @@ Four targets are already planned for Rocky Worlds. GJ 3929b \citep{beardGJ3929Hi
 For our {\bf warm CO$_2$ atmosphere} sample, we restrict the above sample to planets with zero-albedo equilibrium temperatures cool enough to have a solid surface \citep[$< 1700\mathrm{K}$;][]{boukareDeepTwophaseHemispherical2022}, trying to avoid magma oceans that might tilt a cosmic shoreline by providing direct contact with a much deeper volatile reservoir \citep[see][]{huSecondaryAtmosphereRocky2024}. We also limit to temperatures warm enough for CO$_2$ to be gaseous ($>$194 K, CO$_2$ saturation vapor pressure of 1 bar; \citealt{pierrehumbertPrinciplesPlanetaryClimate2010}), coinciding approximately with the outer edge of the habitable zone \citep[where CO$_2$ can no longer provide greenhouse warming because it condenses out of the atmosphere;][]{kopparapuHabitableZonesMainsequence2013}. We focus on CO$_2$ and O$_2$ (which condenses at even colder temperatures) as likely major constituents of temperate atmospheres distilled by near-complete atmospheric erosion \citep{hamanoEmergenceTwoTypes2013a, lugerExtremeWaterLoss2015, schaeferPredictionsAtmosphericComposition2016c,  krissansen-tottonErosionLargePrimary2024}. Venus (92 bar) and Mars ($0.004-0.009$ bar) are both about 95\% CO$_2$ \citep{loddersPlanetaryScientistsCompanion1998}, and Earth too would likely have about 100 bars of atmospheric CO$_2$ (swamping our 1 bar of N$_2$ + O$_2$; \citealt{ingersollPlanetaryClimates2013}) if not for the presence of H$_2$O continually raining down, dissolving atmospheric CO$_2$, and locking it away into solid carbonates \citep{walkerNegativeFeedbackMechanism1981, lecuyerComparisonCarbonNitrogen2000, wordsworthAtmospheresRockyExoplanets2022, hansenDetectingAtmosphericCO22025}. Earth preserves its H$_2$O (and thus keeps our CO$_2$ trapped in limestone deposits) only because water precipitates before it reaches the upper atmosphere, where it would be dissociated by UV radiation and its H atoms lost to space. On warm Venus, the runaway greenhouse process \citep{komabayasi1ChengFen2XiangXinoDaQiQuantoShuiQuanwoYousuruJiaXiangDenaHuoXinggaYiDingnoTaiYangGuangXiadetoriuruBuLianSoknaPingHengWenDunituite1ChengFen2XiangXinoDaQiQuantoShuiQuanwoYousuruJiaXiangDenaHuoXinggaYiDingnoTaiYangGuangXiadetoriuruBuLianSoknaPingHengWenDunituiteDiscreteEquilibriumTemperatures1967, ingersollRunawayGreenhouseHistory1969} vaporizes water and drives it inevitably to the upper atmosphere, where its H escapes \citep{hamanoEmergenceTwoTypes2013a, leconteIncreasedInsolationThreshold2013, wordsworthWaterLossTerrestrial2013}. On cold Mars, hydrogen has also been preferentially lost \citep{jakoskyLossMartianAtmosphere2018}, with modern escape largely driven by dust dynamics carrying frozen water up to high altitudes \citep{chaffinMartianWaterLoss2021}. CO$_2$ (possibly mixed with O$_2$) atmospheres are also particular detectable for exoplanets with JWST, especially with Rocky Worlds' use of MIRI filter photometry centered on the strong 15 $\mu$m CO$_2$ absorption band \citep{morleyObservingAtmospheresKnown2017b, ihConstrainingThicknessTRAPPIST12023}. 
 
 The {\bf any atmosphere} sample contains 965 $A_{\sf i} = 1$ and 42 $A_{\sf i} = 0$ planets, and the {\bf warm CO$_2$} sample contains 538 $A_{\sf i} = 1$ and 12 $A_{\sf i} = 0$ planets. By comparing the broader {\bf any} sample to the smaller zoomed-in {\bf warm CO$_2$} sample, we can test for evidence of the shoreline changing from the global scale (all planets, all volatiles) to the local scale (temperate rocky planets). 
-
-
 
 \section{Fitting a Cosmic Shoreline}
 \label{s:fitting} 
@@ -152,7 +140,7 @@ To account for measurement uncertainties on the predictors, the expression for $
 We used \texttt{numpyro} with NUTS to sample from this posterior, running 4 chains with 5,000 warm-up steps and 50,000 samples each, always achieving a Gelman-Rubin statistic of 1.0 across the chains and usually achieving an effective sample size always (and sometimes much) larger than 1,000 (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/fit-one-shoreline.ipynb}{\texttt{</>}}). Even with the thousands of hyperparameters we use to marginalize over measurement uncertainties, this sampling takes only a few minutes on a modern MacBook Pro. We repeat these fits, with and without uncertainties, across various subsamples of the data (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/fit-many-shorelines.ipynb}{\texttt{</>}}).
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{grid-of-shorelines-any.pdf}
+\includegraphics[width=\textwidth]{figures/grid-of-shorelines-any.pdf}
 \caption{A cosmic shoreline dividing exoplanets (errorbars) and Solar System planets (squares) with {\bf any} type of atmosphere or global surface volatiles (blue symbols, $A_{\sf{i}}=1$) from those without (brown symbols, $A_{\sf{i}}=0$). Planets without definitive atmosphere constraints are shown for context (gray symbols, $A_{\sf{i}}=?$). The shoreline defines a plane in the 3D space of ($f$, $v_{\sf esc}$, $L$); each row shows slices that consider a narrow range of stellar luminosity (top), planet escape velocity (middle), and planet flux (bottom). Background colors indicate the modeled probability of an atmosphere at each location (sandy brown for $p_{\sf i} = 0$, water blue for $p_{\sf i}$ = 1), accounting for the intrinsic width of the shoreline and marginalizing over the parameter uncertainties and the width of the slice; contours (dashed lines) highlight atmosphere probabilities of 5\%, 50\%, 95\% (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/plot-shorelines.ipynb}{\texttt{</>}}).}
 \label{f:shoreline-any}
 \end{figure*}
@@ -174,7 +162,7 @@ The bottom row (i-l) shows the shoreline for different fixed $f$, increasing fro
 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{posteriors-any.pdf}
+\includegraphics[width=\textwidth]{figures/posteriors-any.pdf}
 \caption{Cosmic shoreline parameter posterior probabilities for {\bf any} atmosphere or surface volatiles, corresponding to data in Figure \ref{f:shoreline-any}. Panels show marginalized 1D histograms (diagonal) and marginalized 2D distributions (off-diagonal) with contours that enclose 68.3\% and 95.4\% probability. Titles along the diagonal show confidence intervals for the exoplanets + Solar System joint fit. The model parameters define a shoreline via $\log_{10} (f_{\rm shoreline}/f_\earth) = \log_{10} (f_{\sf 0}/f_\earth) + p \log_{10} (v_{\sf esc}/v_{\sf esc, \earth}) + q \log_{10} (L_\star/L_\sun)$, with $w$ representing the logistic width parameter setting the fuzziness of the shoreline  (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/print-and-visualize-posteriors.ipynb}{\texttt{</>}}).}
 \label{f:posteriors-any}
 \end{figure*}
@@ -190,14 +178,12 @@ The stellar luminosity slope $q = \allanyTrueq$ means that if we decrease the lu
 The intrinsic width of the shoreline $\ln w = \allanyTruelnw$, or $w = \allanyTruew~\mathrm{dex}$, means than if $f$ increases by a factor of $10^{\allanyTruewjustvalue}$ above $f_{\sf shoreline}$ then the probability of an atmosphere drops from $50\%$ to $1/(1 + e^{1}) = 27\%$ (Equation \ref{e:p_i}). To translate into more familiar probabilities from a normal distribution, the chance of having an atmosphere drops to 16\% (1$\sigma$) and 5\% (2$\sigma$) at $1.7w$ and $2.9w$, respectively. The transition from atmospheres being 95\% likely to only 5\% likely spans $w_{95} = 5.89w = \allanyTruewninetyfivejustvalue~\mathrm{dex}$ or a factor of $\allanyTruewninetyfiveasfluxfactorjustvalue \times$ in flux (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/logistic-probabilities.ipynb}{\texttt{</>}}), seen as the blending of colors in Figure \ref{f:shoreline-any}. 
 
 
-
-
 \subsection{{\bf warm CO$_2$} atmosphere shoreline}
 
 Figure \ref{f:shoreline-CO2} shows the shoreline inferred for the zoomed-in {\bf warm CO$_2$} sample of planets, including only those with equilibrium temperatures warm enough for CO$_2$ to remain in gaseous form and cool enough to not necessitate a dayside magma ocean. Focusing on the local geography of the cosmic shoreline more relevant to JWST, the most important differences are (a) the absence of the ultrahot atmosphere 55 Cnc e at high $f$ and (b) the lack of small icy objects to anchor the slope down at low $f$. We see the same qualitative story as before: less luminous stars create harsher environments for planetary atmospheres. 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{grid-of-shorelines-CO2.pdf}
+\includegraphics[width=\textwidth]{figures/grid-of-shorelines-CO2.pdf}
 \caption{A cosmic shoreline exactly as in Figure \ref{f:shoreline-any}, but specifically targeting $\rm{CO}_2$-dominated atmospheres on planets with equilibrium temperatures warm enough $\rm{CO_2}$ to exist as a gas (${\rm T_{CO_2}}= 194 \mathrm{K}$) and cool enough that a global magma ocean is less likely (${\rm T_{magma}} = 1700 \mathrm{K}$). This more narrowly defined cosmic shoreline matters because $\rm CO_2$ is both likely in warm secondary atmospheres and relatively easier to detect for exoplanets in thermal emission with JWST (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/plot-shorelines.ipynb}{\texttt{</>}}).}
 \label{f:shoreline-CO2}
 \end{figure*}
@@ -207,7 +193,7 @@ Figure \ref{f:posteriors-CO2} shows the {\bf warm CO$_2$} parameter posterior. W
 The biggest difference is $\ln w = \allCOOTruelnw$ or $w = \allCOOTruew$ dex being much lower for the narrower CO$_2$ sample, with a transition from 95\% to 5\% atmosphere probability spanning $w_{95} = \allCOOTruewninetyfivejustvalue$ dex or a factor of $\allCOOTruewninetyfiveasfluxfactorjustvalue\times$ in flux. One possibility is that the width $w$ on broad global scales is partially capturing unknown curvature or topography along the shoreline, and a lower $w$ in the zoomed-in sample might hint at the log-linear shoreline being a better local description on increasingly fine scales. Testing this hypothesis will require many more planets with reliable atmosphere labels. 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{posteriors-CO2.pdf}
+\includegraphics[width=\textwidth]{figures/posteriors-CO2.pdf}
 
 \caption{Cosmic shoreline parameter posterior probabilities for {\bf warm CO$_2$} atmosphere or surface volatiles, corresponding to data in Figure \ref{f:shoreline-CO2}. Panels show marginalized 1D histograms (diagonal) and marginalized 2D distributions (off-diagonal) with contours that enclose 68.3\% and 95.4\% probability. Titles along the diagonal show 68.3\% confidence intervals for the exoplanets + Solar System joint fit. The model parameters define a shoreline via $\log_{10} (f_{\rm shoreline}/f_\earth) = \log_{10} (f_{\sf 0}/f_\earth) + p \log_{10} (v_{\sf esc}/v_{\sf esc, \earth}) + q \log_{10} (L_\star/L_\sun)$, with $w$ representing the logistic width parameter setting the fuzziness of the shoreline (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/print-and-visualize-posteriors.ipynb}{\texttt{</>}}).}
 \label{f:posteriors-CO2}
@@ -217,17 +203,10 @@ The biggest difference is $\ln w = \allCOOTruelnw$ or $w = \allCOOTruew$ dex bei
 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{posteriors-with-and-without-uncertainties.pdf}
+\includegraphics[width=\textwidth]{figures/posteriors-with-and-without-uncertainties.pdf}
 \caption{Posteriors inferred with (intense lines) and without (faint lines) accounting for uncertainties on planet properties ($f$, $v_{\sf esc}$, $L_\star$). Both types of atmosphere are shown, using exoplanet and Solar System data in all fits. Marginalizing over uncertainties broadens the possible intrinsic shoreline widths $w$ to lower values but does not significantly shift the shoreline shape parameters (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/print-and-visualize-posteriors.ipynb}{\texttt{</>}}).}
 \label{f:posteriors-uncertainties}
 \end{figure*}
-
-
-
-
-
-%For a star like TRAPPIST-1 at $\log_{10} (L_\star/L_\sun) = -3.26 \pm 0.01$ \citep{ducrotTRAPPIST1GlobalResults2020}, a value of $q=1.21$ implies the shoreline for an Earth-mass planet ($v_{\sf esc} = v_{\sf esc, \earth}$) occurs at $f_{shoreline} = 0.075 f_\earth$ or $a_{\sf shoreline} = 
-
 
 
 \subsection{Sensitivity to Including Gas Giant Planets}
@@ -265,7 +244,7 @@ For the stellar luminosity slope $q$, we can interpret it as setting the fractio
 \section{Conclusions}
 \label{s:conclusions}
 
-We present a probabilistic 3D cosmic shoreline model that defines the maximum bolometric flux $f_{\sf shoreline}$ a planet with given escape velocity $v_{\sf esc}$ and stellar luminosity $L_\star$ can receive and still maintain a substantial atmosphere. We infer parameters for this model by fitting to exoplanets and Solar System bodies with any kind of atmosphere or global surface volatiles. We currently see no strong evidence for different shoreline parameters when we zoom in to consider only temperate atmospheres where CO$_2$ can exist as a gas, just larger uncertainties. With this any-atmosphere empirical shoreline model, we can derive answers to the following questions:
+We present a probabilistic 3D cosmic shoreline model that defines the maximum bolometric flux $f_{\sf shoreline}$ a planet with given escape velocity $v_{\sf esc}$ and stellar luminosity $L_\star$ can receive and still maintain a substantial atmosphere. We infer parameters for this model by fitting to exoplanets and Solar System bodies with any kind of atmosphere or global surface volatiles. We currently see no strong evidence for different shoreline parameters when we zoom in to consider only temperate atmospheres where CO$_2$ can exist as a gas, just larger uncertainties. With this any-atmosphere empirical shoreline model, we can derive answers (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/apply-shoreline.ipynb}{\texttt{</>}}) to the following questions:
 \begin{itemize}
 \item How much bigger would Mercury need to be to retain an atmosphere? Orbiting the Sun at 0.39 AU and receiving $f/f_\Earth = 6.7$, Mercury would need an escape velocity of at least $v_{\sf esc}/v_{\sf esc, \earth} = (f/f_{\sf 0})^{1/p} = \applymercuryescapevelocity$ to have a 50\% chance of having an atmosphere. By the mass-radius relation in Figure \ref{f:mass-radius}, this translates to about $\applymercuryr~ \mathrm{R_\earth}$, or about $\applymercuryrratio \times$ its current size. 
 
@@ -303,9 +282,5 @@ Z. Berta-Thompson planned the project, did the analyses, and wrote the manuscrip
 \bibliography{shoreline}{}
 \bibliographystyle{aasjournalv7}
 
-
-%% Include this line if you are using the \added, \replaced, \deleted
-%% commands to see a summary list of all changes at the end of the article.
-%\listofchanges
 
 \end{document}
