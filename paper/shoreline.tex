@@ -41,9 +41,9 @@
 
 
 % include variables that can be updated easily!
-\input{variables/posteriors-mass-radius}
-\input{variables/posteriors-shorelines}
-\input{variables/posteriors-applications}
+\input{posteriors-mass-radius}
+\input{posteriors-shorelines}
+\input{posteriors-applications}
 
 
 \begin{abstract}
@@ -72,7 +72,7 @@ We assemble planet populations to analyze in \S\ref{s:data}, present the probabi
 \section{Curating the Data}
 \label{s:data}
 
-We assemble planetary properties using \texttt{exoatlas} \citep{berta-thompsonZkbtExoatlas2025}. Solar System data come from JPL Solar System Dynamics tables of major planets, dwarf planets, minor planets, and moons\footnote{\href{https://ssd.jpl.nasa.gov}{ssd.jpl.nasa.gov}}. Exoplanet data come from the NASA Exoplanet Archive's \citep{christiansenNASAExoplanetArchive2025}\footnote{\href{https://exoplanetarchive.ipac.caltech.edu}{exoplanetarchive.ipac.caltech.edu}} Planetary Systems Composite Parameters table, which provides as many properties as possible for each planet, sometimes combining values from independent and possibly inconsistent literature sources. We noticed the default parameters for one planet (LTT 1445Ab) relied on a solution that did not account for blending in TESS pixels, so we updated the reference to use  \citet{passHSTWFC3Light2023} instead. All quantities have units attached with \texttt{astropy.units}, as well as uncertainties propagated through any calculations with numerical samples using \texttt{astropy.uncertainty}. %In \texttt{exoatlas}, missing planet parameters are calculated from other available measurements. 
+We assemble planetary properties using \texttt{exoatlas} \citep{berta-thompsonZkbtExoatlas2025}. Solar System data come from JPL Solar System Dynamics tables of major planets, dwarf planets, minor planets, and moons\footnote{\href{https://ssd.jpl.nasa.gov}{ssd.jpl.nasa.gov}}. Exoplanet data come from the NASA Exoplanet Archive's \citep{christiansenNASAExoplanetArchive2025}\footnote{\href{https://exoplanetarchive.ipac.caltech.edu}{exoplanetarchive.ipac.caltech.edu}} Planetary Systems Composite Parameters table \citep{nasaexoplanetscienceinstitutePlanetarySystemsComposite2020, nasaexoplanetscienceinstitutePlanetarySystemsTable2020}, which provides as many properties as possible for each planet, sometimes combining values from independent and possibly inconsistent literature sources. We noticed the default parameters for one planet (LTT 1445Ab) relied on a solution that did not account for blending in TESS pixels, so we updated the reference to use  \citet{passHSTWFC3Light2023} instead. All quantities have units attached with \texttt{astropy.units}, as well as uncertainties propagated through any calculations with numerical samples using \texttt{astropy.uncertainty}. %In \texttt{exoatlas}, missing planet parameters are calculated from other available measurements. 
 
 
 \subsection{What quantities do we use to predict atmospheres?}
@@ -82,7 +82,7 @@ For stellar luminosity $L_\star$, if not present in the raw table, \texttt{exoat
 To be able to include objects without measured masses in our analysis, we derive an empirical radius-to-mass relation from rocky objects with measured masses and radii. We limit to radii smaller than $1.8 {\rm R_\earth}$, as these are likely to be mostly terrestrial \citep{fultonCaliforniaKeplerSurveyVII2018, zengNewPerspectivesExoplanet2021, rogersMostSuperEarthsHave2025}. We fit a linear model $y = m\cdot x + b$ where we define $x_{\sf i} = \ln (R_{\sf i}/R_\earth)$ and $y_{\sf i} = \ln (M_{\sf i}/M_\earth)$, corresponding to a power-law relationship $M = CR^m$ where $C = e^b$. In addition to the measurement uncertainties on the data $\sigma_{x,i} = \sigma_{\ln R_{\sf i}} = \sigma_{R_{\sf i}}/{R_{\sf i}}$ and $ \sigma_{y_{\sf i}} =  \sigma_{\ln M_{\sf i}} =  \sigma_{M,i}/M_{\sf i}$, we include an intrinsic scatter on the relation $\sigma_{y}$. We allow this intrinsic scatter to vary with radius as $\ln \sigma_{y} = m_\sigma \cdot x + b_\sigma$ to capture the diversity of densities that grows toward very small objects due to effects of composition, structure, and porosity. We infer the parameters of this model ($m$, $b$, $m_\sigma$, $b_\sigma$) following a blog post by \citet[][see also \citealt{hoggDataAnalysisRecipes2010a}]{foreman-mackeyFittingPlaneData2017} with a Gaussian likelihood that analytically marginalizes over the uncertainties in both $x$ and $y$ and an uninformative prior on the slopes $P(m) \propto (1+m^2)^{-3/2}$ as in \citet{vanderplasFrequentismBayesianismPythondriven2014a}. We sample the posterior using \texttt{numpyro} \citep{phanComposableEffectsFlexible2019} with the No U-Turns Sampler \citep[NUTS;][]{hoffmanNoUTurnSamplerAdaptively2011}, using 4 chains each with 5,000 warm-up steps and 50,000 samples, reaching an \citet{gelmanInferenceIterativeSimulation1992} statistic of $\hat{R}=1.0$ and a bulk effective sample size $>10,000$ \citep[][see also \citealt{hoggDataAnalysisRecipes2018}]{vehtariRankNormalizationFoldingLocalization2021} for all parameters. Figure \ref{f:mass-radius} shows the result. The inferred slope of $m = \mrm $ is slightly steeper than a constant density ($m=3$) as expected due to self-gravity more strongly compressing larger planets, and the intercept $b = \mrb$ is close to Earth-like ($b=0$). The slope $m$ is similar to but slightly lower than other mass-radius relations for rocky planets:  3.58 \citep[$1/0.279 =$;][]{chenPROBABILISTICFORECASTINGMASSES2017}, 3.45 \citep{otegiRevisitedMassradiusRelations2020}, 3.70 \citep[$=1/0.27$;][]{mullerMassradiusRelationExoplanets2024}. For the intrinsic scatter, the slope $m_\sigma = \mrmsigma $ and intercept $b_\sigma = \mrbsigma$ imply a \mrscatteratearthjustvalue\% scatter at 1 ${\rm R_\earth}$ that grows to \mrscatteratsmalljustvalue\% scatter at $10^{-3}$ ${\rm R_\earth}$. We incorporate the sample means and covariance matrix (which describe the nearly multivariate normal posterior well) into \texttt{exoatlas} to calculate mass estimates with uncertainties that include the uncertainties on the parameters themselves, the intrinsic scatter, and the input radius uncertainties. This relation is valid only for planets without gaseous envelopes contributing significantly to their overall size.
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{figures/mass-radius-relation-for-rocky-planets}
+\includegraphics[width=\textwidth]{mass-radius-relation-for-rocky-planets}
 \caption{To determine escape velocities for objects without measured masses, we derive an empirical mass-radius relationship from exoplanets (errorbars) and Solar System objects (squares). We use this relation, valid for rocky planets up to $1.8\rm{R}_\earth$, to estimate planet masses and uncertainties that incorporate the intrinsic scatter on the relation, the uncertainties on the model parameters, and uncertainties on the planet radii (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/fit-mass-radius-relation.ipynb}{\texttt{</>}}).
 }
 \label{f:mass-radius}
@@ -152,7 +152,7 @@ To account for measurement uncertainties on the predictors, the expression for $
 We used \texttt{numpyro} with NUTS to sample from this posterior, running 4 chains with 5,000 warm-up steps and 50,000 samples each, always achieving a Gelman-Rubin statistic of 1.0 across the chains and usually achieving an effective sample size always (and sometimes much) larger than 1,000 (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/fit-one-shoreline.ipynb}{\texttt{</>}}). Even with the thousands of hyperparameters we use to marginalize over measurement uncertainties, this sampling takes only a few minutes on a modern MacBook Pro. We repeat these fits, with and without uncertainties, across various subsamples of the data (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/fit-many-shorelines.ipynb}{\texttt{</>}}).
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{figures/grid-of-shorelines-any.pdf}
+\includegraphics[width=\textwidth]{grid-of-shorelines-any.pdf}
 \caption{A cosmic shoreline dividing exoplanets (errorbars) and Solar System planets (squares) with {\bf any} type of atmosphere or global surface volatiles (blue symbols, $A_{\sf{i}}=1$) from those without (brown symbols, $A_{\sf{i}}=0$). Planets without definitive atmosphere constraints are shown for context (gray symbols, $A_{\sf{i}}=?$). The shoreline defines a plane in the 3D space of ($f$, $v_{\sf esc}$, $L$); each row shows slices that consider a narrow range of stellar luminosity (top), planet escape velocity (middle), and planet flux (bottom). Background colors indicate the modeled probability of an atmosphere at each location (sandy brown for $p_{\sf i} = 0$, water blue for $p_{\sf i}$ = 1), accounting for the intrinsic width of the shoreline and marginalizing over the parameter uncertainties and the width of the slice; contours (dashed lines) highlight atmosphere probabilities of 5\%, 50\%, 95\% (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/plot-shorelines.ipynb}{\texttt{</>}}).}
 \label{f:shoreline-any}
 \end{figure*}
@@ -174,7 +174,7 @@ The bottom row (i-l) shows the shoreline for different fixed $f$, increasing fro
 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{figures/posteriors-any.pdf}
+\includegraphics[width=\textwidth]{posteriors-any.pdf}
 \caption{Cosmic shoreline parameter posterior probabilities for {\bf any} atmosphere or surface volatiles, corresponding to data in Figure \ref{f:shoreline-any}. Panels show marginalized 1D histograms (diagonal) and marginalized 2D distributions (off-diagonal) with contours that enclose 68.3\% and 95.4\% probability. Titles along the diagonal show confidence intervals for the exoplanets + Solar System joint fit. The model parameters define a shoreline via $\log_{10} (f_{\rm shoreline}/f_\earth) = \log_{10} (f_{\sf 0}/f_\earth) + p \log_{10} (v_{\sf esc}/v_{\sf esc, \earth}) + q \log_{10} (L_\star/L_\sun)$, with $w$ representing the logistic width parameter setting the fuzziness of the shoreline  (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/print-and-visualize-posteriors.ipynb}{\texttt{</>}}).}
 \label{f:posteriors-any}
 \end{figure*}
@@ -197,7 +197,7 @@ The intrinsic width of the shoreline $\ln w = \allanyTruelnw$, or $w = \allanyTr
 Figure \ref{f:shoreline-CO2} shows the shoreline inferred for the zoomed-in {\bf warm CO$_2$} sample of planets, including only those with equilibrium temperatures warm enough for CO$_2$ to remain in gaseous form and cool enough to not necessitate a dayside magma ocean. Focusing on the local geography of the cosmic shoreline more relevant to JWST, the most important differences are (a) the absence of the ultrahot atmosphere 55 Cnc e at high $f$ and (b) the lack of small icy objects to anchor the slope down at low $f$. We see the same qualitative story as before: less luminous stars create harsher environments for planetary atmospheres. 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{figures/grid-of-shorelines-CO2.pdf}
+\includegraphics[width=\textwidth]{grid-of-shorelines-CO2.pdf}
 \caption{A cosmic shoreline exactly as in Figure \ref{f:shoreline-any}, but specifically targeting $\rm{CO}_2$-dominated atmospheres on planets with equilibrium temperatures warm enough $\rm{CO_2}$ to exist as a gas (${\rm T_{CO_2}}= 194 \mathrm{K}$) and cool enough that a global magma ocean is less likely (${\rm T_{magma}} = 1700 \mathrm{K}$). This more narrowly defined cosmic shoreline matters because $\rm CO_2$ is both likely in warm secondary atmospheres and relatively easier to detect for exoplanets in thermal emission with JWST (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/plot-shorelines.ipynb}{\texttt{</>}}).}
 \label{f:shoreline-CO2}
 \end{figure*}
@@ -207,7 +207,7 @@ Figure \ref{f:posteriors-CO2} shows the {\bf warm CO$_2$} parameter posterior. W
 The biggest difference is $\ln w = \allCOOTruelnw$ or $w = \allCOOTruew$ dex being much lower for the narrower CO$_2$ sample, with a transition from 95\% to 5\% atmosphere probability spanning $w_{95} = \allCOOTruewninetyfivejustvalue$ dex or a factor of $\allCOOTruewninetyfiveasfluxfactorjustvalue\times$ in flux. One possibility is that the width $w$ on broad global scales is partially capturing unknown curvature or topography along the shoreline, and a lower $w$ in the zoomed-in sample might hint at the log-linear shoreline being a better local description on increasingly fine scales. Testing this hypothesis will require many more planets with reliable atmosphere labels. 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{figures/posteriors-CO2.pdf}
+\includegraphics[width=\textwidth]{posteriors-CO2.pdf}
 
 \caption{Cosmic shoreline parameter posterior probabilities for {\bf warm CO$_2$} atmosphere or surface volatiles, corresponding to data in Figure \ref{f:shoreline-CO2}. Panels show marginalized 1D histograms (diagonal) and marginalized 2D distributions (off-diagonal) with contours that enclose 68.3\% and 95.4\% probability. Titles along the diagonal show 68.3\% confidence intervals for the exoplanets + Solar System joint fit. The model parameters define a shoreline via $\log_{10} (f_{\rm shoreline}/f_\earth) = \log_{10} (f_{\sf 0}/f_\earth) + p \log_{10} (v_{\sf esc}/v_{\sf esc, \earth}) + q \log_{10} (L_\star/L_\sun)$, with $w$ representing the logistic width parameter setting the fuzziness of the shoreline (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/print-and-visualize-posteriors.ipynb}{\texttt{</>}}).}
 \label{f:posteriors-CO2}
@@ -217,7 +217,7 @@ The biggest difference is $\ln w = \allCOOTruelnw$ or $w = \allCOOTruew$ dex bei
 
 
 \begin{figure*}[ht!]
-\includegraphics[width=\textwidth]{figures/posteriors-with-and-without-uncertainties.pdf}
+\includegraphics[width=\textwidth]{posteriors-with-and-without-uncertainties.pdf}
 \caption{Posteriors inferred with (intense lines) and without (faint lines) accounting for uncertainties on planet properties ($f$, $v_{\sf esc}$, $L_\star$). Both types of atmosphere are shown, using exoplanet and Solar System data in all fits. Marginalizing over uncertainties broadens the possible intrinsic shoreline widths $w$ to lower values but does not significantly shift the shoreline shape parameters (\href{https://github.com/zkbt/shoreline/blob/main/notebooks/print-and-visualize-posteriors.ipynb}{\texttt{</>}}).}
 \label{f:posteriors-uncertainties}
 \end{figure*}
