@@ -1,5 +1,6 @@
 # for now 
 figures/ 
+upload-to-zenodo/ 
 
 *.bbl 
 *.blg 
