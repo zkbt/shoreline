@@ -1,3 +1,8 @@
+"""
+This module collects a few little helper functions to support
+the notebooks for the Berta-Thompson et al. (2026) cosmic shoreline paper.
+"""
+
 from exoatlas import *
 from exoatlas.visualizations import *
 import arviz as az
@@ -20,7 +25,7 @@ predictor_columns = [
     "mass",
     "radius",
     "relative_escape_velocity",
-    "relative_insolation",
+    "relative_instellation",
     "stellar_luminosity",
     "stellar_mass",
 ]
@@ -41,7 +46,11 @@ def convert_labeled_populations_into_table(labeled, skip_minor=True):
             subsets.append(t)
     table = vstack(subsets)
 
-    for k in ["relative_escape_velocity", "relative_insolation", "stellar_luminosity"]:
+    for k in [
+        "relative_escape_velocity",
+        "relative_instellation",
+        "stellar_luminosity",
+    ]:
         ok = np.isfinite(table[f"{k}"])
         ok *= np.isfinite(table[f"{k}_uncertainty"])
         table = table[ok]
@@ -50,31 +59,33 @@ def convert_labeled_populations_into_table(labeled, skip_minor=True):
 
 def save_organized_populations(A, directory="organized-exoatlas-populations"):
     mkdir(directory)
-    for kind in A:
-        for label in A[kind]:
-            for subpop in A[kind][label]:
-                A[kind][label][subpop].save(f"{directory}/{kind}-{label}-{subpop}.ecsv")
+    for fluxlimit in A:
+        for label in A[fluxlimit]:
+            for subpop in A[fluxlimit][label]:
+                A[fluxlimit][label][subpop].save(
+                    f"{directory}/{fluxlimit}+{label}+{subpop}.ecsv"
+                )
 
 
 def load_organized_populations(
     directory="organized-exoatlas-populations",
     subset="*",
-    kind="*",
+    fluxlimit="*",
     label="*",
     subpop="*",
 ):
     A = {}
-    files = glob.glob(f"{directory}/{subset}-{kind}-{label}-{subpop}.ecsv")
+    files = glob.glob(f"{directory}/{subset}+{fluxlimit}+{label}+{subpop}.ecsv")
     for f in tqdm(files):
-        subset, atmosphere_kind, label, subpop = (
-            os.path.basename(f).split(".ecsv")[0].split("-")
+        subset, atmosphere_fluxlimit, label, subpop = (
+            os.path.basename(f).split(".ecsv")[0].split("+")
         )
-        kind = f"{subset}-{atmosphere_kind}"
-        if kind not in A:
-            A[kind] = {}
-        if label not in A[kind]:
-            A[kind][label] = {}
-        A[kind][label][subpop] = Population(f)
+        fluxlimit = f"{subset}+{atmosphere_fluxlimit}"
+        if fluxlimit not in A:
+            A[fluxlimit] = {}
+        if label not in A[fluxlimit]:
+            A[fluxlimit][label] = {}
+        A[fluxlimit][label][subpop] = Population(f)
     return A
 
 
@@ -117,7 +128,7 @@ def make_safe_for_latex(s):
     return s
 
 
-def latexify(posterior, label=""):
+def latexify_arviz_posterior(posterior, label=""):
 
     func_dict = {
         "median": np.median,
@@ -128,13 +139,12 @@ def latexify(posterior, label=""):
     summary = az.summary(posterior, stat_funcs=func_dict)
     lines = []
     for k in summary["median"].keys():
-        lower, upper = summary["lower"][k], summary["upper"][k]
-        symmetric = np.abs(lower - upper) / (lower + upper) < 0.1
-        if symmetric:
-            sigma = (lower + upper) / 2
-            s = f'{summary["median"][k]:.3g} \pm {sigma:.2g}'
-        else:
-            s = f'{summary["median"][k]:.3g}_{{-{lower:.2g}}}^{{+{upper:.2g}}}'
+
+        s = latexify_confidence_interval(
+            median=summary["median"][k],
+            lower=summary["lower"][k],
+            upper=summary["upper"][k],
+        )
 
         lines.append(
             rf"\newcommand{{\{make_safe_for_latex(label)}{make_safe_for_latex(k)}}}{{{s}}}"
@@ -147,3 +157,19 @@ def latexify(posterior, label=""):
         )
     lines.append("\n")
     return lines
+
+
+def best_and_sampled(posterior):
+    summary = az.summary(posterior, fluxlimit="all", stat_focus="median")
+    best_parameters = summary["median"]
+
+    df = posterior.to_dataframe(var_names=["log_f_0", "p", "q", "ln_w"])
+    N_samples = 100
+    sampled_parameters = df[:: int(len(df) / N_samples)]
+    return best_parameters, sampled_parameters
+
+
+class ShorelineStepAlreadyDoneError(Exception):
+    """Base custom error for shoreline processing."""
+
+    pass
