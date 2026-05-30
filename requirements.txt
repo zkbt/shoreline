@@ -4,3 +4,5 @@ arviz
 corner
 exoatlas>=0.7.5
 
+# annoying, arviz had ecosystem changes after these notebooks were written
+arviz<1.0.0
